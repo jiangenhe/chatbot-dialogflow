@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
@@ -8,27 +10,29 @@ var mysql = require('mysql');
 /* GET users listing. */
 router.post('/', function(req, res, next) {
   res.send('respond with a resource');
-  var data_id = req.body.data_id;
-  var data = req.body.data;
-  var sql;
+  const data_id = req.body.data_id;
+  const data = req.body.data;
+  let sql;
   if (data_id === "Steps") {
-    var con = mysql.createConnection({
-      host: "voice.cl8gdu1grywy.us-east-2.rds.amazonaws.com",
+    const con = mysql.createConnection({
+      host: "jhresearch.c8xg2dqrb27i.us-east-1.rds.amazonaws.com",
       user: "jiangen",
-      password: "bdA-ueN-Jxt-4eL",
+      password: "RXKGf8A+&Dj96qCN",
       database: 'chatbot'
     });
 
     function handleDisconnect() {
       con.connect(function(err) {              // The server is either down
         if(err) {                                     // or restarting (takes a while sometimes).
-          console.log('error when connecting to db:', err);
+          // console.log('error when connecting to db:', err);
+          res.send('error when connecting to db:');
           setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
         }                                     // to avoid a hot loop, and to allow our node script to
       });                                     // process asynchronous requests in the meantime.
                                               // If you're also serving http, display a 503 error.
       con.on('error', function(err) {
-        console.log('db error', err);
+        // console.log('db error', err);
+        res.send('db error')
         if (err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
           handleDisconnect();                         // lost due to either server restart, or a
         } else {                                      // connnection idle timeout (the wait_timeout
@@ -56,11 +60,7 @@ router.post('/', function(req, res, next) {
       }
     })
     con.end();
-  } else if (data_id === "Studies") {
-    
   }
-
-
 
 });
 

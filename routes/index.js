@@ -1,3 +1,5 @@
+'use strict';
+
 const dialogflow = require('dialogflow')
 const uuid = require('uuid')
 const {struct} = require('pb-util');
@@ -11,25 +13,21 @@ function logQueryResult(sessionClient, result) {
   // Instantiates a context client
   const contextClient = new dialogflow.ContextsClient();
 
-  console.log(`  Query: ${result.queryText}`);
-  console.log(`  Response: ${result.fulfillmentText}`);
-  if (result.intent) {
-    console.log(`  Intent: ${result.intent.displayName}`);
-  } else {
-    console.log(`  No intent matched.`);
-  }
+  // console.log(`  Query: ${result.queryText}`);
+  // console.log(`  Response: ${result.fulfillmentText}`);
+  // if (result.intent) {
+  //   console.log(`  Intent: ${result.intent.displayName}`);
+  // } else {
+  //   console.log(`  No intent matched.`);
+  // }
   const parameters = JSON.stringify(struct.decode(result.parameters));
-  console.log(`  Parameters: ${parameters}`);
+  // console.log(`  Parameters: ${parameters}`);
   if (result.outputContexts && result.outputContexts.length) {
-    console.log(`  Output contexts:`);
     result.outputContexts.forEach(context => {
       const contextId = contextClient.matchContextFromContextName(context.name);
       const contextParameters = JSON.stringify(
         struct.decode(context.parameters)
       );
-      console.log(`    ${contextId}`);
-      console.log(`      lifespan: ${context.lifespanCount}`);
-      console.log(`      parameters: ${contextParameters}`);
     });
   }
 }
@@ -38,7 +36,6 @@ function detectEventInput(projectId, sessionId, event, params) {
   // [START dialogflow_detect_intent_text]
   // Instantiates a session client
   const sessionClient = new dialogflow.SessionsClient();
-  console.log("event:", event);
   if (!event) {
     return;
   }
@@ -61,12 +58,10 @@ function detectEventInput(projectId, sessionId, event, params) {
 
   if (!promise) {
     // First query.
-    console.log(`Sending query "${event}"`);
     promise = sessionClient.detectIntent(request);
 
   } else {
     promise = promise.then(responses => {
-      console.log('Detected intent');
       const response = responses[0];
       logQueryResult(sessionClient, response.queryResult);
 
@@ -82,7 +77,7 @@ function detectEventInput(projectId, sessionId, event, params) {
         contexts: response.queryResult.outputContexts,
       };
 
-      console.log(`Sending query "${event}"`);
+      // console.log(`Sending query "${event}"`);
       return sessionClient.detectIntent(request);
     });
   }
@@ -90,11 +85,9 @@ function detectEventInput(projectId, sessionId, event, params) {
 
   promise
     .then(responses => {
-      console.log('Detected intent');
       logQueryResult(sessionClient, responses[0].queryResult);
     })
     .catch(err => {
-      console.error('ERROR:', err);
     });
 
   return promise
@@ -107,7 +100,6 @@ function detectTextIntent(projectId, sessionId, query) {
   // [START dialogflow_detect_intent_text]
   // Instantiates a session client
   const sessionClient = new dialogflow.SessionsClient();
-  console.log("query:", query);
   if (!query) {
     return;
   }
@@ -130,12 +122,10 @@ function detectTextIntent(projectId, sessionId, query) {
 
   if (!promise) {
     // First query.
-    console.log(`Sending query "${query}"`);
     promise = sessionClient.detectIntent(request);
 
   } else {
     promise = promise.then(responses => {
-      console.log('Detected intent');
       const response = responses[0];
       logQueryResult(sessionClient, response.queryResult);
 
@@ -151,7 +141,6 @@ function detectTextIntent(projectId, sessionId, query) {
         contexts: response.queryResult.outputContexts,
       };
 
-      console.log(`Sending query "${query}"`);
       return sessionClient.detectIntent(request);
     });
   }
@@ -185,7 +174,7 @@ router.get('/', async function(req, res, next) {
   if(req.query.type)
     reqType = parseInt(req.query.type);
 
-  console.log(reqType);
+  // console.log(reqType);
 
   // Send request and log result
   let responses;
@@ -198,7 +187,6 @@ router.get('/', async function(req, res, next) {
   const result = responses[0].queryResult;
   result.sessionId = sessionId;
   if (!result.intent) {
-    console.log(`  No intent matched.`);
   }
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(result))
